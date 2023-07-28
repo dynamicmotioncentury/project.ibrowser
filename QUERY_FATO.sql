@@ -1,0 +1,88 @@
+USE [DW_ENEM-2020];	
+SELECT TOP 10 * FROM(
+SELECT
+	MAX(MEDIA) AS MAIOR_MEDIA,
+	NU_ANO,
+	MUNICIPIO
+	FROM(
+SELECT 
+		ME.NO_MUNICIPIO_PROVA AS MUNICIPIO,
+		dboCensoM.IDHM AS IDHM_DO_MUNICIPIO,
+		ME.NU_ANO AS ANO_DA_PROVA,
+		dboCensoE.UFN as ESTADO,
+		ME.NU_ANO,
+		ME.NU_INSCRICAO AS N_INSCRICAO,
+		ME.NU_NOTA_CH AS NOTA_CH,
+		ME.NU_NOTA_CN AS NOTA_CN,
+		ME.NU_NOTA_LC AS NOTA_LC,
+		ME.NU_NOTA_MT AS NOTA_MT,
+		ME.NU_NOTA_REDACAO AS NOTA_REDACAO,
+		(
+			(
+				cast(ME.NU_NOTA_CH as float)+
+				cast(ME.NU_NOTA_CN as float)+
+				cast(ME.NU_NOTA_LC as float)+
+				cast(ME.NU_NOTA_MT as float)+
+				cast(ME.NU_NOTA_REDACAO AS float)
+			) / 5
+		)  AS MEDIA 
+FROM 
+	[DW_ENEM-2020].dbo.MICRODADOS_ENEM_2020 AS ME INNER JOIN
+	[DW_CENSO].dbo.MUNICIPIO as dboCensoM 
+	on (ME.NO_MUNICIPIO_PROVA = dboCensoM.Município) 
+	INNER JOIN
+	[DW_CENSO].dbo.ESTADOS AS dboCensoE
+	on (dboCensoM.UF = dboCensoE.UF)
+where
+		ME.NU_ANO = 2020 AND
+		dboCensoM.ANO = 2010 AND
+		dboCensoM.IDHM > 0.754 AND
+		dboCensoE.UFN = 'Minas gerais' 
+)AS CONSULTA_FATO 
+group by MUNICIPIO, NU_ANO
+--order by MAIOR_MEDIA desc
+
+UNION
+
+SELECT
+	MAX(MEDIA) AS MAIOR_MEDIA,
+	NU_ANO,
+	MUNICIPIO
+	FROM(
+SELECT 
+		ME.NO_MUNICIPIO_PROVA AS MUNICIPIO,
+		dboCensoM.IDHM AS IDHM_DO_MUNICIPIO,
+		ME.NU_ANO AS ANO_DA_PROVA,
+		dboCensoE.UFN as ESTADO,
+		ME.NU_INSCRICAO AS N_INSCRICAO,
+		ME.NU_ANO,
+		ME.NU_NOTA_CH AS NOTA_CH,
+		ME.NU_NOTA_CN AS NOTA_CN,
+		ME.NU_NOTA_LC AS NOTA_LC,
+		ME.NU_NOTA_MT AS NOTA_MT,
+		ME.NU_NOTA_REDACAO AS NOTA_REDACAO,
+		(
+			(
+				cast(ME.NU_NOTA_CH as float)+
+				cast(ME.NU_NOTA_CN as float)+
+				cast(ME.NU_NOTA_LC as float)+
+				cast(ME.NU_NOTA_MT as float)+
+				cast(ME.NU_NOTA_REDACAO AS float)
+			) / 5
+		)  AS MEDIA 
+FROM 
+	[DW_ENEM-2021].dbo.MICRODADOS_ENEM_2021 AS ME INNER JOIN
+	[DW_CENSO].dbo.MUNICIPIO as dboCensoM 
+	on (ME.NO_MUNICIPIO_PROVA = dboCensoM.Município) 
+	INNER JOIN
+	[DW_CENSO].dbo.ESTADOS AS dboCensoE
+	on (dboCensoM.UF = dboCensoE.UF)
+where
+		ME.NU_ANO = 2021 AND
+		dboCensoM.ANO = 2010 AND
+		dboCensoM.IDHM > 0.754 AND
+		dboCensoE.UFN = 'Minas gerais' 
+)AS CONSULTA_FATO
+group by MUNICIPIO, NU_ANO
+
+) AS FINAL order by MAIOR_MEDIA desc

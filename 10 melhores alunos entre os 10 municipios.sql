@@ -1,0 +1,26 @@
+USE [DW_ENEM-2020];
+SELECT
+	MAX(MEDIA) AS MAIOR_MEDIA,
+	NO_MUNICIPIO_PROVA
+FROM (
+	SELECT
+		NO_MUNICIPIO_PROVA,
+		NU_INSCRICAO,
+		NU_NOTA_CH,NU_NOTA_CN,NU_NOTA_LC,NU_NOTA_MT,
+		(
+			(
+				cast(NU_NOTA_CH as float)+
+				cast(NU_NOTA_CN as float)+
+				cast(NU_NOTA_LC as float)+
+				cast(NU_NOTA_MT as float)+
+				cast(NU_NOTA_REDACAO AS float)
+			) / 5
+		)  AS MEDIA 
+
+	FROM 
+		MICRODADOS_ENEM_2020
+	WHERE
+		NU_ANO BETWEEN 2020 AND 2021 AND
+		SG_UF_PROVA = 'mg' 
+	) AS NOTAS_MUNICIPIO group by NO_MUNICIPIO_PROVA
+order by MAIOR_MEDIA desc

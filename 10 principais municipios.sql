@@ -1,0 +1,18 @@
+USE [DW_CENSO]
+SELECT * from(
+	SELECT
+		DISTINCT(M.Município) as MUNICIPIO,
+		M.ANO,
+		E.UFN AS ESTADO,
+		M.IDHM
+	FROM 
+		MUNICIPIO AS M
+		INNER JOIN
+		ESTADOS AS E
+		on (M.UF = E.UF)
+	WHERE 
+		M.ANO = 2010 AND
+		M.IDHM > 0.754 AND
+		E.UFN = 'Minas gerais' --Ou pelo UF = 31
+) as mun ORDER BY IDHM DESC
+
